@@ -18,19 +18,115 @@ const Calendar = () => {
   const [startDate, setStartDate] = useState(DayPilot.Date.today());
   const [events, setEvents] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [selected, setSelected] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedType, setSelectedType] = useState(null);
+  const [groups, setGroups] = useState([]);
+  const [types, setTypes] = useState([]);
 
-  const groups = [
-    { name: "Location 1", id: "L1" },
-    { name: "Location 2", id: "L2" },
-    { name: "Location 3", id: "L3" },
-  ];
+  useEffect(() => {
+    const data = [
+      {
+        name: "RP",
+        id: "locations",
+        resources: [
+          { name: "RP 1", id: "R1", columnWidth: 200 },
+          { name: "RP 2", id: "R2", columnWidth: 200 },
+          { name: "RP 3", id: "R3", columnWidth: 20 },
+          { name: "RP 4", id: "R4", columnWidth: 200 },
+          { name: "RP 5", id: "R5", columnWidth: 200 },
+          { name: "RP 6", id: "R6", columnWidth: 200 },
+          { name: "RP 7", id: "R7", columnWidth: 200 },
+        ],
+      },
+      {
+        name: "Child Care",
+        id: "people",
+        resources: [
+          { name: "CC 1", id: "P1" },
+          { name: "CC 2", id: "P2" },
+          { name: "CC 3", id: "P3" },
+          { name: "CC 4", id: "P4" },
+          { name: "CC 5", id: "P5" },
+          { name: "CC 6", id: "P6" },
+          { name: "CC 7", id: "P7" },
+        ],
+      },
+      {
+        name: "Airmont",
+        id: "tools",
+        resources: [
+          { name: "Airmont 1", id: "T1" },
+          { name: "Airmont 2", id: "T2" },
+          { name: "Airmont 3", id: "T3" },
+          { name: "Airmont 4", id: "T4" },
+          { name: "Airmont 5", id: "T5" },
+          { name: "Airmont 6", id: "T6" },
+          { name: "Airmont 7", id: "T7" },
+        ],
+      },
+    ];
 
-  const type = [
-    { name: "Room Type 1", id: "R1" },
-    { name: "Room Type 2", id: "R2" },
-    { name: "Room Type 3", id: "R3" },
-  ];
+    setGroups(data);
+    setSelectedGroup(data[0]); // Default selection
+  }, []);
+
+  useEffect(() => {
+    const typeData = [
+      {
+        name: "Play",
+        id: "Play",
+        resources: [
+          { name: "Play 1", id: "R1" },
+          { name: "Play 2", id: "R2" },
+          { name: "Play 3", id: "R3" },
+          { name: "Play 4", id: "R4" },
+          { name: "Play 5", id: "R5" },
+          { name: "Play 6", id: "R6" },
+          { name: "Play 7", id: "R7" },
+        ],
+      },
+      {
+        name: "Couple",
+        id: "Couple",
+        resources: [
+          { name: "Couple 1", id: "P1" },
+          { name: "Couple 2", id: "P2" },
+          { name: "Couple 3", id: "P3" },
+          { name: "Couple 4", id: "P4" },
+          { name: "Couple 5", id: "P5" },
+          { name: "Couple 6", id: "P6" },
+          { name: "Couple 7", id: "P7" },
+        ],
+      },
+      {
+        name: "Individual",
+        id: "individual",
+        resources: [
+          { name: "Individual 1", id: "T1" },
+          { name: "Individual 2", id: "T2" },
+          { name: "Individual 3", id: "T3" },
+          { name: "Individual 4", id: "T4" },
+          { name: "Individual 5", id: "T5" },
+          { name: "Individual 6", id: "T6" },
+          { name: "Individual 7", id: "T7" },
+        ],
+      },
+    ];
+
+    setTypes(typeData);
+    setSelectedType(typeData[0]); // Default selection
+  }, []);
+
+  // Combine selectedGroup and selectedType to set columns
+  useEffect(() => {
+    if (selectedGroup && selectedType) {
+      const combinedResources = [
+        ...selectedGroup.resources,
+        ...selectedType.resources,
+      ];
+      setColumns(combinedResources);
+    }
+  }, [selectedGroup, selectedType]);
 
   // Reference for the DayPilotCalendar component
   const calendarRef = useRef();
@@ -47,16 +143,30 @@ const Calendar = () => {
       {
         id: 2,
         text: "Event 2",
-        start: "2018-06-02T10:00:00",
-        end: "2018-06-02T11:00:00",
+        start: "2024-11-08T10:00:00",
+        end: "2024-11-08T11:00:00",
         resource: "R2",
         barColor: "#38761d",
         barBackColor: "#93c47d",
       },
     ]);
 
+    // Initialize with a default view, e.g., resources5
     resources5();
   }, []);
+
+  // Function to set columns to all resources from all groups
+  const resources50 = () => {
+    // Aggregate all resources from all groups
+    const aggregatedResources = groups.reduce((acc, group) => {
+      return acc.concat(group.resources);
+    }, []);
+
+    setColumns(aggregatedResources);
+    setColumnWidthSpec("Fixed"); // Adjust as needed
+    setHeaderLevels(1);
+    setViewType("Resources"); // Ensure the view type is set appropriately
+  };
 
   const resources5 = () => {
     const columns = [
@@ -68,15 +178,8 @@ const Calendar = () => {
     ];
     setColumns(columns);
     setHeaderLevels(1);
-  };
-
-  const resources50 = () => {
-    const columns = Array.from({ length: 50 }, (_, i) => ({
-      id: `R${i + 1}`,
-      name: `Resource ${i + 1}`,
-    }));
-    setColumns(columns);
-    setColumnWidthSpec("Fixed");
+    setColumnWidthSpec("Auto"); // Reset to auto if needed
+    setViewType("Resources");
   };
 
   const daysResources = () => {
@@ -97,6 +200,7 @@ const Calendar = () => {
     setColumnWidthSpec("Auto");
     setColumns(columns);
     setHeaderLevels(2);
+    setViewType("Days");
   };
 
   const resourcesDays = () => {
@@ -114,17 +218,47 @@ const Calendar = () => {
     });
     setColumns(columns);
     setHeaderLevels(2);
+    setViewType("ResourcesDays");
   };
 
   const resourceGroups = () => {
     const columns = [
-      { name: "Group 1", id: "G1", children: [{ name: "Resource 1", id: "R1" }, { name: "Resource 2", id: "R2" }] },
-      { name: "Group 2", id: "G2", children: [{ name: "Resource 3", id: "R3" }, { name: "Resource 4", id: "R4" }] },
-      { name: "Group 3", id: "G3", children: [{ name: "Resource 5", id: "R5" }, { name: "Resource 6", id: "R6" }] },
-      { name: "Group 4", id: "G4", children: [{ name: "Resource 7", id: "R7" }, { name: "Resource 8", id: "R8" }] },
+      {
+        name: "Group 1",
+        id: "G1",
+        children: [
+          { name: "Resource 1", id: "R1" },
+          { name: "Resource 2", id: "R2" },
+        ],
+      },
+      {
+        name: "Group 2",
+        id: "G2",
+        children: [
+          { name: "Resource 3", id: "R3" },
+          { name: "Resource 4", id: "R4" },
+        ],
+      },
+      {
+        name: "Group 3",
+        id: "G3",
+        children: [
+          { name: "Resource 5", id: "R5" },
+          { name: "Resource 6", id: "R6" },
+        ],
+      },
+      {
+        name: "Group 4",
+        id: "G4",
+        children: [
+          { name: "Resource 7", id: "R7" },
+          { name: "Resource 8", id: "R8" },
+        ],
+      },
     ];
     setColumns(columns);
     setHeaderLevels(2);
+    setViewType("Groups");
   };
 
   const previous = () => setStartDate(startDate.addDays(-1));
@@ -141,13 +275,16 @@ const Calendar = () => {
     const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
     calendarRef.current.control.clearSelection();
     if (modal.canceled) return;
-    setEvents([...events, {
-      start: args.start,
-      end: args.end,
-      id: DayPilot.guid(),
-      resource: args.resource,
-      text: modal.result,
-    }]);
+    setEvents([
+      ...events,
+      {
+        start: args.start,
+        end: args.end,
+        id: DayPilot.guid(),
+        resource: args.resource,
+        text: modal.result,
+      },
+    ]);
   };
 
   const onBeforeHeaderRender = (args) => {
@@ -188,16 +325,35 @@ const Calendar = () => {
       <div className="right">
         <div className="space">
           <p>Resources view:</p>
-          <label><input name="view" type="radio" onChange={resources5} defaultChecked /> 5 columns</label>
-          <label><input name="view" type="radio" onChange={resources50} /> 50 columns</label>
-          <label><input name="view" type="radio" onChange={daysResources} /> Days/resources</label>
-          <label><input name="view" type="radio" onChange={resourcesDays} /> Resources/days</label>
-          <label><input name="view" type="radio" onChange={resourceGroups} /> Groups</label>
+          <label>
+            <input name="view" type="radio" onChange={resources5} defaultChecked /> 5 columns
+          </label>
+          <label>
+            <input name="view" type="radio" onChange={resources50} /> 50 columns
+          </label>
+          <label>
+            <input name="view" type="radio" onChange={daysResources} /> Days/resources
+          </label>
+          <label>
+            <input name="view" type="radio" onChange={resourcesDays} /> Resources/days
+          </label>
+          <label>
+            <input name="view" type="radio" onChange={resourceGroups} /> Groups
+          </label>
         </div>
 
         <div className="toolbar">
-          <ResourceGroups onChange={(args) => setSelected(args.selected)} items={groups} label="Location" />
-          <ResourceGroups onChange={(args) => setSelected(args.selected)} items={type} label="Room Type" />
+          <ResourceGroups
+            onChange={(args) => setSelectedGroup(args.selected)}
+            items={groups}
+            label="Location" // First dropdown with the label "Location"
+          />
+
+          <ResourceGroups
+            onChange={(args) => setSelectedType(args.selected)}
+            items={types}
+            label="Room Type" // Second dropdown with the label "Room Type"
+          />
           <span>Day:</span>
           <button onClick={previous}>Previous</button>
           <button onClick={next}>Next</button>
